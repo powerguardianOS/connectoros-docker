@@ -9,10 +9,10 @@ services:
       - ./data:/data
       - /etc/nut:/etc/nut
     environment:
-      PG_CONTROLLER_URL: "${PG_CONTROLLER_URL}"
-      PG_AGENT_KEY: "${PG_AGENT_KEY}"
+      PG_CONTROLLER_URL: "ws://10.0.0.40:8181/agent"
+      PG_AGENT_KEY: "changeme"
       PG_WATCHTOWER_URL: "http://watchtower:8080"
-      PG_WATCHTOWER_TOKEN: "${PG_WATCHTOWER_TOKEN:-pg-connector-token}"
+      PG_WATCHTOWER_TOKEN: "pg-connector-token"
     restart: unless-stopped
 
   watchtower:
@@ -21,7 +21,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     command: >
       --http-api-update
-      --http-api-token ${PG_WATCHTOWER_TOKEN:-pg-connector-token}
+      --http-api-token pg-connector-token
       --label-enable
       --interval 86400
     restart: unless-stopped
