@@ -1,0 +1,41 @@
+# syntax=docker/dockerfile:1
+# PowerGuardian Connector OS — multi-platform Docker image
+# Supported platforms: linux/arm/v7  linux/amd64  linux/arm64
+
+# ── Stage 1: build ────────────────────────────────────────────────────────────
+FROM --platform=$BUILDPLATFORM golang:1.25-bookworm AS builder
+
+ARG TARGETARCH
+ARG TARGETVARIANT
+
+WORKDIR /build
+COPY connector-os/ .
+
+RUN GOOS=linux \
+    GOARCH=${TARGETARCH} \
+    GOARM=${TARGETVARIANT#v} \
+    CGO_ENABLED=0 \
+    go build -tags docker -ldflags="-s -w" -o /pg-connector ./agent
+
+# ── Stage 2: runtime ──────────────────────────────────────────────────────────
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        wget \
+        nut-client \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=builder /pg-connector .
+
+ENV PG_CONTROLLER_URL=""
+ENV PG_AGENT_KEY=""
+ENV PG_WATCHTOWER_URL=""
+ENV PG_WATCHTOWER_TOKEN=""
+
+EXPOSE 8090
+
+VOLUME /data
+
+CMD ["./pg-connector"]

@@ -1,0 +1,27 @@
+services:
+  powerguardian-connector:
+    image: ghcr.io/powerguardianos/connectoros-docker:latest
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./data:/data
+      - /etc/nut:/etc/nut
+    environment:
+      PG_CONTROLLER_URL: "${PG_CONTROLLER_URL}"
+      PG_AGENT_KEY: "${PG_AGENT_KEY}"
+      PG_WATCHTOWER_URL: "http://watchtower:8080"
+      PG_WATCHTOWER_TOKEN: "${PG_WATCHTOWER_TOKEN:-pg-connector-token}"
+    restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: >
+      --http-api-update
+      --http-api-token ${PG_WATCHTOWER_TOKEN:-pg-connector-token}
+      --label-enable
+      --interval 86400
+    restart: unless-stopped
