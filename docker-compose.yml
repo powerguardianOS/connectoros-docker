@@ -1,15 +1,13 @@
 services:
   powerguardian-connector:
     image: ghcr.io/powerguardianos/connectoros-docker:latest
-    ports:
-      - "8090:8090"
+    network_mode: host
     volumes:
       - ./data:/data
       - /etc/nut:/etc/nut
     environment:
-      - PG_CONTROLLER_URL=
       - PG_AGENT_KEY=
-      - PG_WATCHTOWER_URL=http://watchtower:9000
+      - PG_WATCHTOWER_URL=http://localhost:9000
       - PG_WATCHTOWER_TOKEN=changeme
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
@@ -18,6 +16,7 @@ services:
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
+    network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
