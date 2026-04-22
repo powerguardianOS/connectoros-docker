@@ -6,6 +6,7 @@ services:
       - ./data:/data
       - /etc/nut:/etc/nut
     environment:
+      - PG_DATA_DIR=/data
       - PG_AGENT_KEY=
       - PG_WATCHTOWER_URL=http://localhost:9000
       - PG_WATCHTOWER_TOKEN=changeme
@@ -26,4 +27,3 @@ services:
       - WATCHTOWER_LABEL_ENABLE=true
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_NO_STARTUP_MESSAGE=true
-    restart: unless-stopped
