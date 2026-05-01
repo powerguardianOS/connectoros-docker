@@ -3,6 +3,7 @@ name: Build & Publish Docker Image
 on:
   repository_dispatch:
     types: [connector-updated]
+  workflow_dispatch:
 
 jobs:
   docker:
@@ -20,7 +21,7 @@ jobs:
           repository: powerguardianOS/powerguardian-connector-os
           token: ${{ secrets.DISPATCH_TOKEN }}
           path: connector-os
-          ref: ${{ github.event.client_payload.sha }}
+          ref: ${{ github.event.client_payload.sha || 'main' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -42,9 +43,9 @@ jobs:
           platforms: linux/arm/v7,linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/powerguardianos/connectoros-docker:latest
-            ghcr.io/powerguardianos/connectoros-docker:${{ github.event.client_payload.sha }}
+            ghcr.io/powerguardianos/powerguardian-connector-docker:latest
+            ghcr.io/powerguardianos/powerguardian-connector-docker:${{ github.event.client_payload.sha || github.sha }}
           build-args: |
-            VERSION=${{ github.event.client_payload.sha }}
+            VERSION=${{ github.event.client_payload.sha || github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
