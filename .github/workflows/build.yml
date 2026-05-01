@@ -44,5 +44,7 @@ jobs:
           tags: |
             ghcr.io/powerguardianos/connectoros-docker:latest
             ghcr.io/powerguardianos/connectoros-docker:${{ github.event.client_payload.sha }}
+          build-args: |
+            VERSION=${{ github.event.client_payload.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
